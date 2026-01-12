@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+Pro:wght@300;400;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+
+        :root {
+            --primary-navy: #0a1628;
+            --primary-burgundy: #722f37;
+            --accent-gold: #c4a962;
+            --text-dark: #1a1a1a;
+            --text-medium: #333;
+            --text-light: #666;
+            --border-thin: #ddd;
+            --bg-paper: #fefefe;
+
+            --font-display: "Playfair Display", Georgia, serif;
+            --font-sans: "Source Sans Pro", Helvetica, Arial, sans-serif;
+            --font-serif: "Source Serif Pro", Georgia, serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            line-height: 1.75;
+            color: var(--text-dark);
+            background: #e8e8e8;
+        }
+
+        /* Magazine Page Container */
+        .magazine-page {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-paper);
+            box-shadow: 0 0 60px rgba(0,0,0,0.15);
+            min-height: 100vh;
+        }
+
+        /* Masthead */
+        .masthead {
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border-thin);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .masthead-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            letter-spacing: 0.05em;
+        }
+
+        .masthead-meta {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Cover Story Hero - Full Page */
+        .cover-hero {
+            position: relative;
+            min-height: calc(100vh - 80px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cover-hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            {% if data.hero_image %}
+            content: url('{{ data.hero_image }}');
+            {% endif %}
+        }
+
+        .cover-hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            {% if data.hero_image %}
+            background-image: url('{{ data.hero_image }}');
+            {% else %}
+            background-image: url('../hero_images/cover_tech_globe.jpg');
+            {% endif %}
+        }
+
+        .cover-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.3) 0%,
+                rgba(0,0,0,0.5) 100%
+            );
+        }
+
+        .cover-hero-content {
+            position: relative;
+            z-index: 10;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 3rem;
+            color: white;
+        }
+
+        .cover-header {
+            margin-bottom: 2rem;
+        }
+
+        .cover-body {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .cover-excerpt {
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .cover-excerpt p {
+            margin-bottom: 1rem;
+        }
+
+        .cover-sidebar {
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.8);
+            line-height: 1.7;
+        }
+
+        .cover-sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: white;
+        }
+
+        .cover-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cover-sidebar li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .cover-sidebar li:last-child {
+            border-bottom: none;
+        }
+
+        .cover-label {
+            display: inline-block;
+            background: var(--primary-burgundy);
+            color: white;
+            padding: 0.35rem 1rem;
+            font-family: var(--font-sans);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .cover-title {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+            max-width: 600px;
+        }
+
+        .cover-subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            font-style: italic;
+            opacity: 0.9;
+            max-width: 500px;
+        }
+
+        /* Main Content Area */
+        .content-area {
+            padding: 2.5rem 3rem;
+        }
+
+        /* Two Column Flow */
+        .two-column-flow {
+            columns: 2;
+            column-gap: 2.5rem;
+            column-rule: 1px solid var(--border-thin);
+        }
+
+        /* Lead Paragraph - First section styled differently */
+        .lead-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .lead-section .section-title {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .lead-section p:first-of-type {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-medium);
+        }
+
+        .lead-section p:first-of-type::first-letter {
+            font-family: var(--font-display);
+            font-size: 4rem;
+            float: left;
+            line-height: 0.8;
+            padding-right: 0.5rem;
+            padding-top: 0.25rem;
+            color: var(--primary-burgundy);
+            font-weight: 700;
+        }
+
+        /* Regular Sections */
+        .section {
+            margin-bottom: 1.25rem;
+        }
+
+        .section-number {
+            font-family: var(--font-sans);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .section p {
+            margin-bottom: 0.6rem;
+            text-align: justify;
+            hyphens: auto;
+        }
+
+        .section.highlighted .section-title {
+            color: var(--primary-burgundy);
+        }
+
+        /* Images in flow */
+        .media-item {
+            margin: 1rem 0;
+            break-inside: avoid;
+        }
+
+        .media-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .media-caption {
+            font-family: var(--font-sans);
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            line-height: 1.4;
+            font-style: italic;
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 0.75rem;
+        }
+
+        /* Pull Quote */
+        .pull-quote {
+            margin: 1.5rem 0;
+            padding: 1.25rem 0;
+            border-top: 2px solid var(--primary-navy);
+            border-bottom: 2px solid var(--primary-navy);
+            break-inside: avoid;
+        }
+
+        .pull-quote p {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-style: italic;
+            line-height: 1.5;
+            color: var(--primary-navy);
+            text-align: center;
+        }
+
+        /* Colophon / Footer integrated */
+        .colophon {
+            padding: 1.5rem 3rem;
+            border-top: 1px solid var(--border-thin);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .magazine-page {
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .masthead,
+            .content-area,
+            .colophon {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+
+            .cover-hero {
+                min-height: 100vh;
+            }
+
+            .cover-hero-content {
+                padding: 2rem;
+            }
+
+            .cover-title {
+                font-size: 2.25rem;
+            }
+
+            .cover-body {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .two-column-flow {
+                columns: 1;
+            }
+
+            .lead-section p:first-of-type::first-letter {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .masthead {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+
+            .cover-hero {
+                min-height: auto;
+                padding-bottom: 2rem;
+            }
+
+            .cover-title {
+                font-size: 1.75rem;
+            }
+
+            .cover-subtitle {
+                font-size: 0.95rem;
+            }
+
+            .cover-excerpt {
+                font-size: 0.95rem;
+            }
+
+            .masthead,
+            .content-area,
+            .colophon {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+        }
+
+        /* Print styles for actual magazine feel */
+        @media print {
+            body {
+                background: white;
+            }
+            .magazine-page {
+                box-shadow: none;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article class="magazine-page">
+        <!-- Masthead -->
+        <header class="masthead">
+            <div class="masthead-title">{{ data.title }}</div>
+            <div class="masthead-meta">{{ data.total_slides }} Sections</div>
+        </header>
+
+        <!-- Cover Hero - Full Page -->
+        <div class="cover-hero">
+            <div class="cover-hero-bg"></div>
+            <div class="cover-hero-overlay"></div>
+            <div class="cover-hero-content">
+                <div class="cover-header">
+                    <span class="cover-label">Cover Story</span>
+                    <h1 class="cover-title">{{ data.title }}</h1>
+                    <p class="cover-subtitle">Strategic Analysis & Executive Insights</p>
+                </div>
+
+                {% if data.slides and data.slides|length > 0 %}
+                <div class="cover-body">
+                    <div class="cover-excerpt">
+                        {% for item in data.slides[0].content[:3] %}
+                        {% if item.value %}
+                        <p>{{ item.value }}</p>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="cover-sidebar">
+                        <h3 class="cover-sidebar-title">In This Report</h3>
+                        <ul>
+                            {% for slide in data.slides[:5] %}
+                            <li>{{ slide.title }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area">
+            <div class="two-column-flow">
+                {% for slide in data.slides %}
+                {% if loop.first %}
+                <!-- Lead Section with Drop Cap -->
+                <div class="lead-section section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    <h2 class="section-title">{{ slide.title }}</h2>
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    <div class="media-item">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        <p class="media-caption">{{ slide.title }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% else %}
+                <!-- Regular Sections -->
+                <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    <span class="section-number">Section {{ slide.slide_number }}</span>
+                    <h2 class="section-title">{{ slide.title }}</h2>
+
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    <div class="media-item">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        <p class="media-caption">{{ slide.title }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Colophon -->
+        <footer class="colophon">
+            <span>{{ data.title }}</span>
+            <span>Generated by PPT-to-Web</span>
+        </footer>
+    </article>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }}</title>
+    <style>
+        :root {
+            --primary-navy: #0a1628;
+            --primary-burgundy: #722f37;
+            --accent-gold: #c4a962;
+            --accent-cream: #f8f6f3;
+            --text-dark: #1a1a1a;
+            --text-medium: #4a4a4a;
+            --text-light: #6b6b6b;
+            --border-light: #e0e0e0;
+            --border-thin: #e8e8e8;
+            --font-serif: "Georgia", "Times New Roman", Times, serif;
+            --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: var(--accent-cream);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: var(--primary-navy);
+            color: white;
+            padding: 2rem 0;
+            border-bottom: 4px solid var(--accent-gold);
+        }
+
+        .header h1 {
+            font-family: var(--font-serif);
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        .header .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Main Content - Two Column Flow */
+        .main-content {
+            background: white;
+            padding: 3rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .two-column-flow {
+            columns: 2;
+            column-gap: 2.5rem;
+            column-rule: 1px solid var(--border-light);
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-medium);
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-burgundy);
+            break-after: avoid;
+        }
+
+        .section-number {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-light);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .section p {
+            margin-bottom: 0.75rem;
+            text-align: justify;
+        }
+
+        .section.highlighted .section-title {
+            color: var(--primary-burgundy);
+        }
+
+        /* Images in flow */
+        .media-item {
+            margin: 1rem 0;
+            break-inside: avoid;
+        }
+
+        .media-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+        }
+
+        .media-caption {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-thin);
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-navy);
+            color: white;
+            padding: 2rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .main-content {
+                padding: 2rem;
+            }
+
+            .two-column-flow {
+                columns: 1;
+            }
+
+            .section-title {
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>{{ data.title }}</h1>
+            <p class="subtitle">{{ data.total_slides }} Sections | Professional Presentation</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="main-content">
+            <div class="two-column-flow">
+                {% for slide in data.slides %}
+                <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    <span class="section-number">Section {{ slide.slide_number }}</span>
+                    <h2 class="section-title">{{ slide.title }}</h2>
+
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    <div class="media-item">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        <p class="media-caption">{{ slide.title }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>{{ data.title }} | {{ data.total_slides }} sections</p>
+                <p>Generated by PPT-to-Web</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

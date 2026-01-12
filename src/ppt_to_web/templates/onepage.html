@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }} | Strategic Report</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+Pro:wght@300;400;600;700&family=Source+Serif+Pro:wght@400;600&display=swap');
+
+        :root {
+            --primary-navy: #0a1628;
+            --primary-burgundy: #722f37;
+            --accent-gold: #c4a962;
+            --accent-cream: #f8f6f3;
+            --accent-gray-light: #f5f5f5;
+            --text-dark: #1a1a1a;
+            --text-medium: #2d2d2d;
+            --text-light: #666666;
+            --border-color: #d1d1d1;
+            --border-thin: #e8e8e8;
+
+            --font-display: "Playfair Display", Georgia, serif;
+            --font-sans: "Source Sans Pro", Helvetica, Arial, sans-serif;
+            --font-serif: "Source Serif Pro", Georgia, serif;
+
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-dark);
+            background: var(--accent-cream);
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-gold);
+        }
+
+        .nav-logo {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-meta {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 50vh;
+            min-height: 400px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-top: 60px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            {% if data.hero_image %}
+            background-image: url('{{ data.hero_image }}');
+            {% else %}
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--primary-burgundy) 100%);
+            {% endif %}
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(10, 22, 40, 0.85), rgba(114, 47, 55, 0.75));
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            max-width: 900px;
+            padding: 0 2rem;
+        }
+
+        .hero-content h1 {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-content .subtitle {
+            font-family: var(--font-serif);
+            font-size: 1.25rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+        }
+
+        /* Main Content - Two Column Flow */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 3rem;
+        }
+
+        .main-content {
+            background: white;
+            padding: 3rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .two-column-flow {
+            columns: 2;
+            column-gap: 3rem;
+            column-rule: 1px solid var(--border-thin);
+            font-family: var(--font-serif);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-medium);
+        }
+
+        /* Section styling */
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-navy);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-burgundy);
+            break-after: avoid;
+        }
+
+        .section-number {
+            font-family: var(--font-sans);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-light);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .section p {
+            margin-bottom: 0.75rem;
+            text-align: justify;
+        }
+
+        .section.highlighted .section-title {
+            color: var(--primary-burgundy);
+        }
+
+        /* Images in flow */
+        .media-item {
+            margin: 1rem 0;
+            break-inside: avoid;
+        }
+
+        .media-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border: 1px solid var(--border-thin);
+        }
+
+        .media-caption {
+            font-family: var(--font-sans);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-thin);
+            line-height: 1.4;
+            font-style: italic;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-navy);
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+        }
+
+        .footer::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--accent-gold);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--primary-navy);
+            color: white;
+            border: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            transition: var(--transition-smooth);
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-burgundy);
+            transform: translateY(-3px);
+        }
+
+        .back-to-top.visible {
+            display: flex;
+        }
+
+        .back-to-top svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .nav {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 0 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .main-content {
+                padding: 2rem;
+            }
+
+            .two-column-flow {
+                columns: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .hero-content .subtitle {
+                font-size: 1rem;
+            }
+
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-logo">{{ data.title }}</div>
+        <div class="nav-meta">{{ data.total_slides }} Sections</div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1>{{ data.title }}</h1>
+            <p class="subtitle">Strategic Analysis & Executive Insights</p>
+        </div>
+    </section>
+
+    <main class="container">
+        <div class="main-content">
+            <div class="two-column-flow">
+                {% for slide in data.slides %}
+                <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
+                    <span class="section-number">Section {{ slide.slide_number }}</span>
+                    <h2 class="section-title">{{ slide.title }}</h2>
+
+                    {% for item in slide.content %}
+                    {% if item.value %}
+                    <p>{{ item.value }}</p>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if slide.media %}
+                    {% for media in slide.media %}
+                    {% if media.type == 'image' %}
+                    <div class="media-item">
+                        <img src="{{ media.path }}" alt="{{ slide.title }}">
+                        <p class="media-caption">{{ slide.title }}</p>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>{{ data.title }} | {{ data.total_slides }} sections</p>
+                <p>Generated by PPT-to-Web</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" onclick="scrollToTop()">
+        <svg viewBox="0 0 24 24">
+            <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
+        </svg>
+    </button>
+
+    <script>
+        window.addEventListener('scroll', function() {
+            const backToTop = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+</body>
+</html>
