@@ -5,7 +5,7 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def _create_html_env() -> Environment:
-    template_dir = Path(__file__).parent.parent / "templates"
+    template_dir = Path(__file__).parent / "templates"
     return Environment(loader=FileSystemLoader(template_dir), autoescape=True)
 
 
