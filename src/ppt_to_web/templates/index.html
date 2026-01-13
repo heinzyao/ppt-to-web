@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,14 +118,41 @@
         .media-item {
             margin: 1rem 0;
             break-inside: avoid;
+            text-align: center;
+            /* Center content */
+            clear: both;
         }
 
         .media-item img {
             width: 100%;
             height: auto;
-            display: block;
+            display: inline-block;
+            /* Changed from block to allow centering */
             border: 1px solid var(--border-light);
             border-radius: 4px;
+        }
+
+        /* Smart Layouts */
+        .media-item.media-landscape {
+            width: 100%;
+        }
+
+        .media-item.media-portrait {
+            width: 70%;
+            margin: 1rem auto;
+        }
+
+        @media (min-width: 768px) {
+            .media-item.media-portrait {
+                float: right;
+                width: 45%;
+                margin: 0.5rem 0 1rem 1.5rem;
+            }
+        }
+
+        .media-item.media-square {
+            width: 80%;
+            margin: 1rem auto;
         }
 
         .media-caption {
@@ -135,6 +163,7 @@
             border-top: 1px solid var(--border-thin);
             line-height: 1.4;
             font-style: italic;
+            text-align: center;
         }
 
         /* Footer */
@@ -185,6 +214,7 @@
         }
     </style>
 </head>
+
 <body>
     <header class="header">
         <div class="container">
@@ -210,16 +240,21 @@
                     {% if slide.media %}
                     {% for media in slide.media %}
                     {% if media.type == 'image' %}
-                    <div class="media-item">
+                    {% set ar = media.aspect_ratio | default(1.0) %}
+                    {% set layout_class = 'media-square' %}
+                    {% if ar > 1.2 %}
+                    {% set layout_class = 'media-landscape' %}
+                    {% elif ar < 0.8 %} {% set layout_class='media-portrait' %} {% endif %} <div
+                        class="media-item {{ layout_class }}">
                         <img src="{{ media.path }}" alt="{{ slide.title }}">
                         <p class="media-caption">{{ slide.title }}</p>
-                    </div>
-                    {% endif %}
-                    {% endfor %}
-                    {% endif %}
                 </div>
+                {% endif %}
                 {% endfor %}
+                {% endif %}
             </div>
+            {% endfor %}
+        </div>
         </div>
     </main>
 
@@ -232,4 +267,5 @@
         </div>
     </footer>
 </body>
+
 </html>

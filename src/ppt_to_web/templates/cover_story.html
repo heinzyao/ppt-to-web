@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,9 +43,11 @@
             font-size: 13px;
             line-height: 1.7;
         }
+
         .content-compact .section-title {
             font-size: 1.1rem;
         }
+
         .content-compact .lead-section .section-title {
             font-size: 1.35rem;
         }
@@ -58,9 +61,11 @@
             font-size: 17px;
             line-height: 2;
         }
+
         .content-spacious .section-title {
             font-size: 1.4rem;
         }
+
         .content-spacious .lead-section .section-title {
             font-size: 1.8rem;
         }
@@ -70,7 +75,7 @@
             max-width: 900px;
             margin: 0 auto;
             background: var(--bg-paper);
-            box-shadow: 0 0 60px rgba(0,0,0,0.15);
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.15);
             min-height: 100vh;
         }
 
@@ -112,9 +117,16 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            {% if data.hero_image %}
+
+                {
+                % if data.hero_image %
+            }
+
             content: url('{{ data.hero_image }}');
-            {% endif %}
+
+                {
+                % endif %
+            }
         }
 
         .cover-hero-bg {
@@ -125,11 +137,22 @@
             bottom: 0;
             background-size: cover;
             background-position: center;
-            {% if data.hero_image %}
+
+                {
+                % if data.hero_image %
+            }
+
             background-image: url('{{ data.hero_image }}');
-            {% else %}
+
+                {
+                % else %
+            }
+
             background-image: url('../hero_images/cover_tech_globe.jpg');
-            {% endif %}
+
+                {
+                % endif %
+            }
         }
 
         .cover-hero-overlay {
@@ -138,11 +161,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(
-                to bottom,
-                rgba(0,0,0,0.3) 0%,
-                rgba(0,0,0,0.5) 100%
-            );
+            background: linear-gradient(to bottom,
+                    rgba(0, 0, 0, 0.3) 0%,
+                    rgba(0, 0, 0, 0.5) 100%);
         }
 
         .cover-hero-content {
@@ -165,14 +186,14 @@
             grid-template-columns: 1.2fr 1fr;
             gap: 3rem;
             padding-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .cover-excerpt {
             font-family: var(--font-serif);
             font-size: 1.05rem;
             line-height: 1.8;
-            color: rgba(255,255,255,0.9);
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .cover-excerpt p {
@@ -182,7 +203,7 @@
         .cover-sidebar {
             font-family: var(--font-sans);
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.8);
             line-height: 1.7;
         }
 
@@ -201,7 +222,7 @@
 
         .cover-sidebar li {
             padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .cover-sidebar li:last-child {
@@ -228,7 +249,7 @@
             line-height: 1.25;
             margin-bottom: 0.75rem;
             max-width: 700px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .cover-subtitle {
@@ -317,18 +338,53 @@
             background: #f8f8f8;
             border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             text-align: center;
+            clear: both;
+            /* Clear floats by default */
         }
 
         .media-item img {
             max-width: 100%;
-            max-height: 400px;
             width: auto;
             height: auto;
             display: inline-block;
             object-fit: contain;
             transition: transform 0.3s ease;
+        }
+
+        /* Smart Layouts */
+        .media-item.media-landscape {
+            width: 100%;
+        }
+
+        .media-item.media-landscape img {
+            width: 100%;
+            max-height: 600px;
+        }
+
+        .media-item.media-portrait {
+            width: 100%;
+            /* Mobile default */
+            margin: 1.25rem auto;
+        }
+
+        .media-item.media-portrait img {
+            max-width: 100%;
+            max-height: 500px;
+        }
+
+        @media (min-width: 600px) {
+            .media-item.media-portrait {
+                float: right;
+                width: 45%;
+                margin: 0.5rem 0 1rem 1.5rem;
+            }
+        }
+
+        .media-item.media-square {
+            width: 80%;
+            margin: 1.25rem auto;
         }
 
         .media-item img:not([src$=".png"]):not([src$=".jpg"]):not([src$=".jpeg"]):not([src$=".gif"]):not([src$=".webp"]):not([src$=".svg"]) {
@@ -359,6 +415,7 @@
             line-height: 1.4;
             background: #fff;
             border-left: 3px solid var(--accent-gold);
+            text-align: left;
         }
 
         /* Image grid for multiple images */
@@ -482,6 +539,7 @@
             body {
                 background: white;
             }
+
             .magazine-page {
                 box-shadow: none;
                 max-width: none;
@@ -496,7 +554,7 @@
             background: #fafafa;
             border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .chart-wrapper {
@@ -522,6 +580,7 @@
     <!-- ECharts library for chart rendering -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
+
 <body>
     <article class="magazine-page">
         <!-- Masthead -->
@@ -539,7 +598,8 @@
                     <span class="cover-label">Cover Story</span>
                     <h1 class="cover-title">{{ data.cover_title if data.cover_title else data.title }}</h1>
                     {% if data.slides and data.slides|length > 0 and data.slides[0].content %}
-                    <p class="cover-subtitle">{{ data.slides[0].content[0].value[:80] if data.slides[0].content[0].value else '' }}...</p>
+                    <p class="cover-subtitle">{{ data.slides[0].content[0].value[:80] if data.slides[0].content[0].value
+                        else '' }}...</p>
                     {% else %}
                     <p class="cover-subtitle">Strategic Analysis & Executive Insights</p>
                     {% endif %}
@@ -584,19 +644,24 @@
                     {% if slide.media %}
                     {% for media in slide.media %}
                     {% if media.type == 'image' %}
-                    <div class="media-item">
+                    {% set ar = media.aspect_ratio | default(1.0) %}
+                    {% set layout_class = 'media-square' %}
+                    {% if ar > 1.2 %}
+                    {% set layout_class = 'media-landscape' %}
+                    {% elif ar < 0.8 %} {% set layout_class='media-portrait' %} {% endif %} <div
+                        class="media-item {{ layout_class }}">
                         <img src="{{ media.path }}" alt="{{ slide.title }}">
                         <p class="media-caption">{{ slide.title }}</p>
-                    </div>
-                    {% elif media.type == 'chart' %}
-                    <div class="chart-container">
-                        {% if media.title %}
-                        <div class="chart-title">{{ media.title }}</div>
-                        {% endif %}
-                        <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
-                    </div>
-                    <script>
-                    (function() {
+                </div>
+                {% elif media.type == 'chart' %}
+                <div class="chart-container">
+                    {% if media.title %}
+                    <div class="chart-title">{{ media.title }}</div>
+                    {% endif %}
+                    <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
+                </div>
+                <script>
+                    (function () {
                         var chartDom = document.getElementById('{{ media.chart_id }}');
                         var myChart = echarts.init(chartDom);
                         var option = {
@@ -604,155 +669,170 @@
                                 trigger: '{% if media.chart_type == "pie" %}item{% else %}axis{% endif %}'
                             },
                             legend: {
-                                data: {{ media.series | map(attribute='name') | list | tojson }},
-                                bottom: 0,
-                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            {% if media.chart_type != 'pie' %}
-                            {% if media.is_horizontal %}
-                            yAxis: {
-                                type: 'category',
-                                data: {{ media.categories | tojson }},
-                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            xAxis: {
-                                type: 'value'
-                            },
-                            {% else %}
-                            xAxis: {
-                                type: 'category',
-                                data: {{ media.categories | tojson }},
-                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            yAxis: {
-                                type: 'value'
-                            },
-                            {% endif %}
-                            {% endif %}
-                            series: [
-                                {% for series in media.series %}
-                                {
-                                    name: {{ series.name | tojson }},
-                                    type: '{{ media.chart_type }}',
-                                    {% if media.chart_type == 'pie' %}
-                                    radius: '60%',
-                                    data: [
-                                        {% for i in range(media.categories | length) %}
-                                        { value: {{ series.data[i] if i < series.data | length else 0 }}, name: {{ media.categories[i] | tojson }} }{% if not loop.last %},{% endif %}
-                                        {% endfor %}
-                                    ]
-                                    {% else %}
-                                    data: {{ series.data | tojson }}{% if media.is_stacked %},
-                                    stack: 'total'{% endif %}{% if media.is_area %},
-                                    areaStyle: {}{% endif %}
-                                    {% endif %}
-                                }{% if not loop.last %},{% endif %}
-                                {% endfor %}
-                            ]
-                        };
-                        myChart.setOption(option);
-                        window.addEventListener('resize', function() {
-                            myChart.resize();
-                        });
-                    })();
-                    </script>
+                                data: {{ media.series | map(attribute = 'name') | list | tojson
+                    }},
+                    bottom: 0,
+                        textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                                },
+                    {% if media.chart_type != 'pie' %}
+                    {% if media.is_horizontal %}
+                    yAxis: {
+                        type: 'category',
+                            data: { { media.categories | tojson } },
+                        axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                    },
+                    xAxis: {
+                        type: 'value'
+                    },
+                    {% else %}
+                    xAxis: {
+                        type: 'category',
+                            data: { { media.categories | tojson } },
+                        axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
                     {% endif %}
+                    {% endif %}
+                    series: [
+                        {% for series in media.series %}
+                    {
+                        name: { { series.name | tojson } },
+                        type: '{{ media.chart_type }}',
+                            {% if media.chart_type == 'pie' %}
+                    radius: '60%',
+                        data: [
+                            {% for i in range(media.categories | length) %}
+                    { value: { { series.data[i] if i < series.data | length else 0 } }, name: { { media.categories[i] | tojson } } } {% if not loop.last %}, {% endif %}
                     {% endfor %}
+                                        ]
+                    {% else %}
+                    data: { { series.data | tojson } }
+                    {% if media.is_stacked %}
+                                        , stack: 'total'
                     {% endif %}
-                </div>
-                {% else %}
-                <!-- Regular Sections -->
-                <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
-                    <h2 class="section-title">{{ slide.title }}</h2>
-
-                    {% for item in slide.content %}
-                    {% if item.value %}
-                    <p>{{ item.value }}</p>
+                    {% if media.is_area %}
+                                        , areaStyle: { }
                     {% endif %}
+                    {% endif %}
+                                    }{% if not loop.last %}, {% endif %}
                     {% endfor %}
-
-                    {% if slide.media %}
-                    {% for media in slide.media %}
-                    {% if media.type == 'image' %}
-                    <div class="media-item">
-                        <img src="{{ media.path }}" alt="{{ slide.title }}">
-                        <p class="media-caption">{{ slide.title }}</p>
-                    </div>
-                    {% elif media.type == 'chart' %}
-                    <div class="chart-container">
-                        {% if media.title %}
-                        <div class="chart-title">{{ media.title }}</div>
-                        {% endif %}
-                        <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
-                    </div>
-                    <script>
-                    (function() {
-                        var chartDom = document.getElementById('{{ media.chart_id }}');
-                        var myChart = echarts.init(chartDom);
-                        var option = {
-                            tooltip: {
-                                trigger: '{% if media.chart_type == "pie" %}item{% else %}axis{% endif %}'
-                            },
-                            legend: {
-                                data: {{ media.series | map(attribute='name') | list | tojson }},
-                                bottom: 0,
-                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            {% if media.chart_type != 'pie' %}
-                            {% if media.is_horizontal %}
-                            yAxis: {
-                                type: 'category',
-                                data: {{ media.categories | tojson }},
-                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            xAxis: {
-                                type: 'value'
-                            },
-                            {% else %}
-                            xAxis: {
-                                type: 'category',
-                                data: {{ media.categories | tojson }},
-                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
-                            },
-                            yAxis: {
-                                type: 'value'
-                            },
-                            {% endif %}
-                            {% endif %}
-                            series: [
-                                {% for series in media.series %}
-                                {
-                                    name: {{ series.name | tojson }},
-                                    type: '{{ media.chart_type }}',
-                                    {% if media.chart_type == 'pie' %}
-                                    radius: '60%',
-                                    data: [
-                                        {% for i in range(media.categories | length) %}
-                                        { value: {{ series.data[i] if i < series.data | length else 0 }}, name: {{ media.categories[i] | tojson }} }{% if not loop.last %},{% endif %}
-                                        {% endfor %}
-                                    ]
-                                    {% else %}
-                                    data: {{ series.data | tojson }}{% if media.is_stacked %},
-                                    stack: 'total'{% endif %}{% if media.is_area %},
-                                    areaStyle: {}{% endif %}
-                                    {% endif %}
-                                }{% if not loop.last %},{% endif %}
-                                {% endfor %}
-                            ]
-                        };
-                        myChart.setOption(option);
-                        window.addEventListener('resize', function() {
-                            myChart.resize();
-                        });
-                    })();
-                    </script>
-                    {% endif %}
-                    {% endfor %}
-                    {% endif %}
-                </div>
+                                ]
+                            };
+                    myChart.setOption(option);
+                    window.addEventListener('resize', function () {
+                        myChart.resize();
+                    });
+                        }) ();
+                </script>
                 {% endif %}
                 {% endfor %}
+                {% endif %}
             </div>
+            {% else %}
+            <!-- Regular Sections -->
+            <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
+                <h2 class="section-title">{{ slide.title }}</h2>
+
+                {% for item in slide.content %}
+                {% if item.value %}
+                <p>{{ item.value }}</p>
+                {% endif %}
+                {% endfor %}
+
+                {% if slide.media %}
+                {% for media in slide.media %}
+                {% if media.type == 'image' %}
+                {% set ar = media.aspect_ratio | default(1.0) %}
+                {% set layout_class = 'media-square' %}
+                {% if ar > 1.2 %}
+                {% set layout_class = 'media-landscape' %}
+                {% elif ar < 0.8 %} {% set layout_class='media-portrait' %} {% endif %} <div
+                    class="media-item {{ layout_class }}">
+                    <img src="{{ media.path }}" alt="{{ slide.title }}">
+                    <p class="media-caption">{{ slide.title }}</p>
+            </div>
+            {% elif media.type == 'chart' %}
+            <div class="chart-container">
+                {% if media.title %}
+                <div class="chart-title">{{ media.title }}</div>
+                {% endif %}
+                <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
+            </div>
+            <script>
+                (function () {
+                    var chartDom = document.getElementById('{{ media.chart_id }}');
+                    var myChart = echarts.init(chartDom);
+                    var option = {
+                        tooltip: {
+                            trigger: '{% if media.chart_type == "pie" %}item{% else %}axis{% endif %}'
+                        },
+                        legend: {
+                            data: {{ media.series | map(attribute = 'name') | list | tojson
+                }},
+                bottom: 0,
+                    textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                {% if media.chart_type != 'pie' %}
+                {% if media.is_horizontal %}
+                yAxis: {
+                    type: 'category',
+                        data: { { media.categories | tojson } },
+                    axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                },
+                xAxis: {
+                    type: 'value'
+                },
+                {% else %}
+                xAxis: {
+                    type: 'category',
+                        data: { { media.categories | tojson } },
+                    axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                {% endif %}
+                {% endif %}
+                series: [
+                    {% for series in media.series %}
+                {
+                    name: { { series.name | tojson } },
+                    type: '{{ media.chart_type }}',
+                        {% if media.chart_type == 'pie' %}
+                radius: '60%',
+                    data: [
+                        {% for i in range(media.categories | length) %}
+                { value: { { series.data[i] if i < series.data | length else 0 } }, name: { { media.categories[i] | tojson } } } {% if not loop.last %}, {% endif %}
+                {% endfor %}
+                                    ]
+                {% else %}
+                data: { { series.data | tojson } }
+                {% if media.is_stacked %}
+                                    , stack: 'total'
+                {% endif %}
+                {% if media.is_area %}
+                                    , areaStyle: { }
+                {% endif %}
+                {% endif %}
+                                }{% if not loop.last %}, {% endif %}
+                {% endfor %}
+                            ]
+                        };
+                myChart.setOption(option);
+                window.addEventListener('resize', function () {
+                    myChart.resize();
+                });
+                    }) ();
+            </script>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        </div>
         </div>
 
         <!-- Colophon -->
@@ -763,7 +843,7 @@
     </article>
     <script>
         // Dynamic font sizing based on content length
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const contentArea = document.querySelector('.two-column-flow');
             if (contentArea) {
                 const textContent = contentArea.textContent || contentArea.innerText;
@@ -781,4 +861,5 @@
         });
     </script>
 </body>
+
 </html>

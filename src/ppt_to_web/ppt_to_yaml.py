@@ -147,79 +147,57 @@ def _extract_media(
     try:
         image_bytes = shape.image.blob
         ext = shape.image.ext.lower()
-
-        # Web-friendly formats that don't need conversion
-        web_formats = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
-
-        # If format is already web-friendly, save directly
-        if ext in web_formats:
-            filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
-            filepath = media_dir / filename
-            with open(filepath, "wb") as f:
-                f.write(image_bytes)
-            return f"media/{filename}"
-
-        # Save original file first
-        original_filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
-        original_filepath = media_dir / original_filename
-        with open(original_filepath, "wb") as f:
+        
+        # Use wand for processing (smart crop/trim)
+        from wand.image import Image as WandImage
+        from wand.color import Color
+        
+        processed_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
+        processed_filepath = media_dir / processed_filename
+        
+        width = 0
+        height = 0
+        aspect_ratio = 1.0
+        
+        try:
+            with WandImage(blob=image_bytes) as img:
+                # Trim whitespace
+                img.trim(color=Color('white'), fuzz=0)
+                # Also trim transparent
+                img.trim(fuzz=0)
+                
+                # Get dimensions
+                width = img.width
+                height = img.height
+                if height > 0:
+                    aspect_ratio = width / height
+                
+                # Save as PNG
+                img.format = 'png'
+                img.save(filename=str(processed_filepath))
+                
+                return {
+                    "path": f"media/{processed_filename}",
+                    "width": width,
+                    "height": height,
+                    "aspect_ratio": aspect_ratio
+                }
+        except Exception as e:
+            print(f"Warning: Wand processing failed for slide {slide_idx}, shape {shape_idx}: {e}")
+            # Fallback to saving original without processing
+            
+        # Fallback implementation if wand fails
+        filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
+        filepath = media_dir / filename
+        with open(filepath, "wb") as f:
             f.write(image_bytes)
-
-        png_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
-        png_filepath = media_dir / png_filename
-
-        # Try LibreOffice conversion first (best for WMF/EMF)
-        soffice_path = shutil.which("soffice") or "/opt/homebrew/bin/soffice"
-        if Path(soffice_path).exists():
-            try:
-                result = subprocess.run(
-                    [
-                        soffice_path,
-                        "--headless",
-                        "--convert-to",
-                        "png",
-                        "--outdir",
-                        str(media_dir),
-                        str(original_filepath),
-                    ],
-                    capture_output=True,
-                    timeout=30,
-                )
-                if result.returncode == 0 and png_filepath.exists():
-                    original_filepath.unlink()
-                    return f"media/{png_filename}"
-            except (subprocess.TimeoutExpired, FileNotFoundError):
-                pass
-
-        # Try ImageMagick as fallback
-        try:
-            result = subprocess.run(
-                ["magick", str(original_filepath), str(png_filepath)],
-                capture_output=True,
-                timeout=30,
-            )
-            if result.returncode == 0 and png_filepath.exists():
-                original_filepath.unlink()
-                return f"media/{png_filename}"
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            pass
-
-        # Try Pillow as last fallback
-        try:
-            from PIL import Image
-            import io
-
-            img = Image.open(io.BytesIO(image_bytes))
-            if img.mode in ("RGBA", "P"):
-                img = img.convert("RGB")
-            img.save(png_filepath, "PNG")
-            original_filepath.unlink()
-            return f"media/{png_filename}"
-        except Exception:
-            pass
-
-        # All conversion failed, keep original
-        return f"media/{original_filename}"
+            
+        return {
+            "path": f"media/{filename}",
+            "width": 0,
+            "height": 0,
+            "aspect_ratio": 1.0
+        }
 
     except Exception as e:
         print(f"Warning: Failed to extract media from slide {slide_idx}, shape {shape_idx}: {e}")
@@ -264,9 +242,11 @@ def ppt_to_yaml(pptx_path: str, yaml_output_dir: str) -> str:
                 if chart_data:
                     slide_data["media"].append(chart_data)
             elif hasattr(shape, "image"):
-                media_path = _extract_media(shape, slide_idx, shape_idx, media_dir)
-                if media_path:
-                    slide_data["media"].append({"type": "image", "path": media_path})
+                media_info = _extract_media(shape, slide_idx, shape_idx, media_dir)
+                if media_info:
+                    media_item = {"type": "image"}
+                    media_item.update(media_info)
+                    slide_data["media"].append(media_item)
 
             if _is_highlighted(shape):
                 slide_data["is_highlighted"] = True
