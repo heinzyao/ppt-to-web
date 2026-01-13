@@ -138,60 +138,114 @@ def _extract_chart(shape, slide_idx: int, shape_idx: int) -> dict | None:
         return None
 
 
+def _convert_with_libreoffice(input_path: Path, output_dir: Path) -> Path | None:
+    """Convert image using LibreOffice (best for WMF/EMF)."""
+    try:
+        result = subprocess.run(
+            [
+                "soffice",
+                "--headless",
+                "--convert-to", "png",
+                "--outdir", str(output_dir),
+                str(input_path),
+            ],
+            capture_output=True,
+            timeout=60,
+        )
+        if result.returncode == 0:
+            output_path = output_dir / f"{input_path.stem}.png"
+            if output_path.exists():
+                return output_path
+    except Exception:
+        pass
+    return None
+
+
+def _get_image_dimensions(filepath: Path) -> tuple[int, int, float]:
+    """Get image dimensions using wand or return defaults."""
+    width, height, aspect_ratio = 0, 0, 1.0
+    try:
+        from wand.image import Image as WandImage
+        with WandImage(filename=str(filepath)) as img:
+            width = img.width
+            height = img.height
+            if height > 0:
+                aspect_ratio = width / height
+    except Exception:
+        pass
+    return width, height, aspect_ratio
+
+
 def _extract_media(
     shape, slide_idx: int, shape_idx: int, media_dir: Path
-) -> str | None:
+) -> dict | None:
     if not hasattr(shape, "image"):
         return None
 
     try:
         image_bytes = shape.image.blob
         ext = shape.image.ext.lower()
-        
-        # Use wand for processing (smart crop/trim)
-        from wand.image import Image as WandImage
-        from wand.color import Color
-        
+
         processed_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
         processed_filepath = media_dir / processed_filename
-        
-        width = 0
-        height = 0
-        aspect_ratio = 1.0
-        
-        try:
-            with WandImage(blob=image_bytes) as img:
-                # Trim whitespace
-                img.trim(color=Color('white'), fuzz=0)
-                # Also trim transparent
-                img.trim(fuzz=0)
-                
-                # Get dimensions
-                width = img.width
-                height = img.height
-                if height > 0:
-                    aspect_ratio = width / height
-                
-                # Save as PNG
-                img.format = 'png'
-                img.save(filename=str(processed_filepath))
-                
+
+        # Try wand first for web-compatible formats
+        if ext in ("png", "jpg", "jpeg", "gif", "webp"):
+            try:
+                from wand.image import Image as WandImage
+                from wand.color import Color
+
+                with WandImage(blob=image_bytes) as img:
+                    img.trim(color=Color('white'), fuzz=0)
+                    img.trim(fuzz=0)
+                    img.format = 'png'
+                    img.save(filename=str(processed_filepath))
+
+                    return {
+                        "path": f"media/{processed_filename}",
+                        "width": img.width,
+                        "height": img.height,
+                        "aspect_ratio": img.width / img.height if img.height > 0 else 1.0
+                    }
+            except Exception as e:
+                print(f"Warning: Wand processing failed for slide {slide_idx}, shape {shape_idx}: {e}")
+
+        # For WMF/EMF or if wand failed, try LibreOffice
+        if ext in ("wmf", "emf", "wmz", "emz") or not processed_filepath.exists():
+            # Save original first
+            temp_filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
+            temp_filepath = media_dir / temp_filename
+            with open(temp_filepath, "wb") as f:
+                f.write(image_bytes)
+
+            # Try LibreOffice conversion
+            converted = _convert_with_libreoffice(temp_filepath, media_dir)
+            if converted and converted.exists():
+                # Remove original WMF/EMF
+                temp_filepath.unlink(missing_ok=True)
+                width, height, aspect_ratio = _get_image_dimensions(converted)
                 return {
                     "path": f"media/{processed_filename}",
                     "width": width,
                     "height": height,
                     "aspect_ratio": aspect_ratio
                 }
-        except Exception as e:
-            print(f"Warning: Wand processing failed for slide {slide_idx}, shape {shape_idx}: {e}")
-            # Fallback to saving original without processing
-            
-        # Fallback implementation if wand fails
+            else:
+                # Keep original if conversion failed
+                print(f"Warning: LibreOffice conversion failed for slide {slide_idx}, shape {shape_idx}")
+                return {
+                    "path": f"media/{temp_filename}",
+                    "width": 0,
+                    "height": 0,
+                    "aspect_ratio": 1.0
+                }
+
+        # Fallback: save original format
         filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
         filepath = media_dir / filename
         with open(filepath, "wb") as f:
             f.write(image_bytes)
-            
+
         return {
             "path": f"media/{filename}",
             "width": 0,

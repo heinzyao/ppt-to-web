@@ -10,6 +10,8 @@ dist/
 
 # Output
 output/
+*_output/
+*_test/
 
 # macOS
 .DS_Store
