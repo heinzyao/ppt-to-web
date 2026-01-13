@@ -1,5 +1,5 @@
 import click
-from pathlib import Path
+
 from ppt_to_web import ppt_to_yaml, yaml_to_html
 
 

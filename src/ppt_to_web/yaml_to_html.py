@@ -1,12 +1,17 @@
-import os
+import json
+import shutil
 from pathlib import Path
-from typing import Dict, List, Any
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
 
 
 def _create_html_env() -> Environment:
     template_dir = Path(__file__).parent / "templates"
-    return Environment(loader=FileSystemLoader(template_dir), autoescape=True)
+    env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
+    # Add tojson filter for ECharts data serialization
+    env.filters['tojson'] = lambda x: json.dumps(x, ensure_ascii=False)
+    return env
 
 
 def yaml_to_html(
@@ -15,8 +20,6 @@ def yaml_to_html(
     template_name: str = "index.html",
     output_filename: str | None = None,
 ) -> str:
-    import yaml
-
     yaml_file = Path(yaml_path)
     html_dir = Path(html_output_dir)
     html_dir.mkdir(parents=True, exist_ok=True)
@@ -44,11 +47,8 @@ def yaml_to_html(
 
         for media_file in media_dir.iterdir():
             if media_file.is_file():
-                import shutil
-
-                src = media_file
                 dst = output_media_dir / media_file.name
-                if src != dst:
-                    shutil.copy2(src, dst)
+                if media_file != dst:
+                    shutil.copy2(media_file, dst)
 
     return str(html_output_path)

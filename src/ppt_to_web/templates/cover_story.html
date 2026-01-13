@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ data.title }}</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+Pro:wght@300;400;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Source+Sans+Pro:wght@300;400;600&family=Source+Serif+Pro:ital,wght@0,400;0,600;1,400&family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap');
 
         :root {
             --primary-navy: #0a1628;
@@ -17,9 +17,10 @@
             --border-thin: #ddd;
             --bg-paper: #fefefe;
 
-            --font-display: "Playfair Display", Georgia, serif;
-            --font-sans: "Source Sans Pro", Helvetica, Arial, sans-serif;
-            --font-serif: "Source Serif Pro", Georgia, serif;
+            --font-display: "Playfair Display", "Noto Serif TC", Georgia, serif;
+            --font-sans: "Source Sans Pro", "Noto Sans TC", Helvetica, Arial, sans-serif;
+            --font-serif: "Source Serif Pro", "Noto Serif TC", Georgia, serif;
+            --font-cjk: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
         }
 
         * {
@@ -29,11 +30,39 @@
         }
 
         body {
-            font-family: var(--font-serif);
+            font-family: var(--font-cjk);
             font-size: 15px;
-            line-height: 1.75;
+            line-height: 1.85;
             color: var(--text-dark);
             background: #e8e8e8;
+        }
+
+        /* Dynamic font sizing classes */
+        .content-compact {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+        .content-compact .section-title {
+            font-size: 1.1rem;
+        }
+        .content-compact .lead-section .section-title {
+            font-size: 1.35rem;
+        }
+
+        .content-normal {
+            font-size: 15px;
+            line-height: 1.85;
+        }
+
+        .content-spacious {
+            font-size: 17px;
+            line-height: 2;
+        }
+        .content-spacious .section-title {
+            font-size: 1.4rem;
+        }
+        .content-spacious .lead-section .section-title {
+            font-size: 1.8rem;
         }
 
         /* Magazine Page Container */
@@ -193,12 +222,13 @@
         }
 
         .cover-title {
-            font-family: var(--font-display);
-            font-size: 3rem;
+            font-family: var(--font-cjk);
+            font-size: 2.75rem;
             font-weight: 700;
-            line-height: 1.15;
+            line-height: 1.25;
             margin-bottom: 0.75rem;
-            max-width: 600px;
+            max-width: 700px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .cover-subtitle {
@@ -227,12 +257,14 @@
         }
 
         .lead-section .section-title {
-            font-family: var(--font-display);
+            font-family: var(--font-cjk);
             font-size: 1.6rem;
             font-weight: 600;
             color: var(--primary-navy);
-            margin-bottom: 0.75rem;
-            line-height: 1.3;
+            margin-bottom: 1rem;
+            line-height: 1.35;
+            border-bottom: 3px solid var(--primary-burgundy);
+            padding-bottom: 0.75rem;
         }
 
         .lead-section p:first-of-type {
@@ -257,24 +289,15 @@
             margin-bottom: 1.25rem;
         }
 
-        .section-number {
-            font-family: var(--font-sans);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-light);
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            display: block;
-        }
-
         .section-title {
-            font-family: var(--font-display);
+            font-family: var(--font-cjk);
             font-size: 1.25rem;
             font-weight: 600;
             color: var(--primary-navy);
-            margin-bottom: 0.5rem;
-            line-height: 1.3;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 0.5rem;
         }
 
         .section p {
@@ -289,25 +312,65 @@
 
         /* Images in flow */
         .media-item {
-            margin: 1rem 0;
+            margin: 1.25rem 0;
             break-inside: avoid;
+            background: #f8f8f8;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
         }
 
         .media-item img {
-            width: 100%;
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
             height: auto;
-            display: block;
+            display: inline-block;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .media-item img:not([src$=".png"]):not([src$=".jpg"]):not([src$=".jpeg"]):not([src$=".gif"]):not([src$=".webp"]):not([src$=".svg"]) {
+            /* Fallback for non-web formats like WMF */
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 150px;
+        }
+
+        .media-item img[src$=".wmf"]::after,
+        .media-item img[src$=".emf"]::after {
+            content: "Image format not supported in browser";
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .media-item:hover img {
+            transform: scale(1.02);
         }
 
         .media-caption {
-            font-family: var(--font-sans);
+            font-family: var(--font-cjk);
             font-size: 0.75rem;
             color: var(--text-light);
-            margin-top: 0.5rem;
+            padding: 0.75rem 1rem;
             line-height: 1.4;
-            font-style: italic;
-            border-left: 2px solid var(--accent-gold);
-            padding-left: 0.75rem;
+            background: #fff;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        /* Image grid for multiple images */
+        .media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.25rem 0;
+        }
+
+        .media-grid .media-item {
+            margin: 0;
         }
 
         /* Pull Quote */
@@ -424,13 +487,46 @@
                 max-width: none;
             }
         }
+
+        /* Chart container styles */
+        .chart-container {
+            width: 100%;
+            margin: 1.25rem 0;
+            break-inside: avoid;
+            background: #fafafa;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            height: 320px;
+        }
+
+        .chart-title {
+            font-family: var(--font-cjk);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            padding: 0.75rem 1rem 0;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .chart-wrapper {
+                height: 260px;
+            }
+        }
     </style>
+    <!-- ECharts library for chart rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 </head>
 <body>
     <article class="magazine-page">
         <!-- Masthead -->
         <header class="masthead">
-            <div class="masthead-title">{{ data.title }}</div>
+            <div class="masthead-title">{{ data.cover_title if data.cover_title else data.title }}</div>
             <div class="masthead-meta">{{ data.total_slides }} Sections</div>
         </header>
 
@@ -441,8 +537,12 @@
             <div class="cover-hero-content">
                 <div class="cover-header">
                     <span class="cover-label">Cover Story</span>
-                    <h1 class="cover-title">{{ data.title }}</h1>
+                    <h1 class="cover-title">{{ data.cover_title if data.cover_title else data.title }}</h1>
+                    {% if data.slides and data.slides|length > 0 and data.slides[0].content %}
+                    <p class="cover-subtitle">{{ data.slides[0].content[0].value[:80] if data.slides[0].content[0].value else '' }}...</p>
+                    {% else %}
                     <p class="cover-subtitle">Strategic Analysis & Executive Insights</p>
+                    {% endif %}
                 </div>
 
                 {% if data.slides and data.slides|length > 0 %}
@@ -488,6 +588,74 @@
                         <img src="{{ media.path }}" alt="{{ slide.title }}">
                         <p class="media-caption">{{ slide.title }}</p>
                     </div>
+                    {% elif media.type == 'chart' %}
+                    <div class="chart-container">
+                        {% if media.title %}
+                        <div class="chart-title">{{ media.title }}</div>
+                        {% endif %}
+                        <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
+                    </div>
+                    <script>
+                    (function() {
+                        var chartDom = document.getElementById('{{ media.chart_id }}');
+                        var myChart = echarts.init(chartDom);
+                        var option = {
+                            tooltip: {
+                                trigger: '{% if media.chart_type == "pie" %}item{% else %}axis{% endif %}'
+                            },
+                            legend: {
+                                data: {{ media.series | map(attribute='name') | list | tojson }},
+                                bottom: 0,
+                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            {% if media.chart_type != 'pie' %}
+                            {% if media.is_horizontal %}
+                            yAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            xAxis: {
+                                type: 'value'
+                            },
+                            {% else %}
+                            xAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            {% endif %}
+                            {% endif %}
+                            series: [
+                                {% for series in media.series %}
+                                {
+                                    name: {{ series.name | tojson }},
+                                    type: '{{ media.chart_type }}',
+                                    {% if media.chart_type == 'pie' %}
+                                    radius: '60%',
+                                    data: [
+                                        {% for i in range(media.categories | length) %}
+                                        { value: {{ series.data[i] if i < series.data | length else 0 }}, name: {{ media.categories[i] | tojson }} }{% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    ]
+                                    {% else %}
+                                    data: {{ series.data | tojson }}{% if media.is_stacked %},
+                                    stack: 'total'{% endif %}{% if media.is_area %},
+                                    areaStyle: {}{% endif %}
+                                    {% endif %}
+                                }{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ]
+                        };
+                        myChart.setOption(option);
+                        window.addEventListener('resize', function() {
+                            myChart.resize();
+                        });
+                    })();
+                    </script>
                     {% endif %}
                     {% endfor %}
                     {% endif %}
@@ -495,7 +663,6 @@
                 {% else %}
                 <!-- Regular Sections -->
                 <div class="section{% if slide.is_highlighted %} highlighted{% endif %}">
-                    <span class="section-number">Section {{ slide.slide_number }}</span>
                     <h2 class="section-title">{{ slide.title }}</h2>
 
                     {% for item in slide.content %}
@@ -511,6 +678,74 @@
                         <img src="{{ media.path }}" alt="{{ slide.title }}">
                         <p class="media-caption">{{ slide.title }}</p>
                     </div>
+                    {% elif media.type == 'chart' %}
+                    <div class="chart-container">
+                        {% if media.title %}
+                        <div class="chart-title">{{ media.title }}</div>
+                        {% endif %}
+                        <div id="{{ media.chart_id }}" class="chart-wrapper"></div>
+                    </div>
+                    <script>
+                    (function() {
+                        var chartDom = document.getElementById('{{ media.chart_id }}');
+                        var myChart = echarts.init(chartDom);
+                        var option = {
+                            tooltip: {
+                                trigger: '{% if media.chart_type == "pie" %}item{% else %}axis{% endif %}'
+                            },
+                            legend: {
+                                data: {{ media.series | map(attribute='name') | list | tojson }},
+                                bottom: 0,
+                                textStyle: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            {% if media.chart_type != 'pie' %}
+                            {% if media.is_horizontal %}
+                            yAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            xAxis: {
+                                type: 'value'
+                            },
+                            {% else %}
+                            xAxis: {
+                                type: 'category',
+                                data: {{ media.categories | tojson }},
+                                axisLabel: { fontFamily: 'Noto Sans TC, sans-serif' }
+                            },
+                            yAxis: {
+                                type: 'value'
+                            },
+                            {% endif %}
+                            {% endif %}
+                            series: [
+                                {% for series in media.series %}
+                                {
+                                    name: {{ series.name | tojson }},
+                                    type: '{{ media.chart_type }}',
+                                    {% if media.chart_type == 'pie' %}
+                                    radius: '60%',
+                                    data: [
+                                        {% for i in range(media.categories | length) %}
+                                        { value: {{ series.data[i] if i < series.data | length else 0 }}, name: {{ media.categories[i] | tojson }} }{% if not loop.last %},{% endif %}
+                                        {% endfor %}
+                                    ]
+                                    {% else %}
+                                    data: {{ series.data | tojson }}{% if media.is_stacked %},
+                                    stack: 'total'{% endif %}{% if media.is_area %},
+                                    areaStyle: {}{% endif %}
+                                    {% endif %}
+                                }{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ]
+                        };
+                        myChart.setOption(option);
+                        window.addEventListener('resize', function() {
+                            myChart.resize();
+                        });
+                    })();
+                    </script>
                     {% endif %}
                     {% endfor %}
                     {% endif %}
@@ -522,9 +757,28 @@
 
         <!-- Colophon -->
         <footer class="colophon">
-            <span>{{ data.title }}</span>
+            <span>{{ data.cover_title if data.cover_title else data.title }}</span>
             <span>Generated by PPT-to-Web</span>
         </footer>
     </article>
+    <script>
+        // Dynamic font sizing based on content length
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentArea = document.querySelector('.two-column-flow');
+            if (contentArea) {
+                const textContent = contentArea.textContent || contentArea.innerText;
+                const charCount = textContent.length;
+
+                // Adjust font size based on total character count
+                if (charCount > 8000) {
+                    contentArea.classList.add('content-compact');
+                } else if (charCount < 2000) {
+                    contentArea.classList.add('content-spacious');
+                } else {
+                    contentArea.classList.add('content-normal');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
