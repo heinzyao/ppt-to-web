@@ -1,20 +1,30 @@
 # Python
 __pycache__/
-*.py[oc]
+*.py[cod]
+*.pyo
 build/
 dist/
-*.egg-info
+*.egg-info/
+*.egg
 
 # Environment
 .venv/
+.env
 
-# Output
+# Output directories
 output/
 *_output/
 *_test/
+*_test[0-9]*/
 
 # macOS
 .DS_Store
 
 # Test files
 test_*.pptx
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

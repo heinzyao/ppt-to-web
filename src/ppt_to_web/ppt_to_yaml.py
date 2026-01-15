@@ -1,4 +1,3 @@
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -60,6 +59,48 @@ def _map_chart_type(chart_type: XL_CHART_TYPE) -> str:
     return chart_type_mapping.get(chart_type, "bar")
 
 
+def _extract_chart_title(chart) -> str:
+    """Extract chart title safely."""
+    if not chart.has_title:
+        return ""
+    try:
+        return chart.chart_title.text_frame.text
+    except Exception:
+        return ""
+
+
+def _extract_chart_categories(chart) -> list[str]:
+    """Extract chart categories (x-axis labels)."""
+    try:
+        if chart.plots and chart.plots[0].categories:
+            return [str(cat) for cat in chart.plots[0].categories]
+    except Exception as e:
+        print(f"Warning: Could not extract categories: {e}")
+    return []
+
+
+def _extract_chart_series(chart) -> list[dict]:
+    """Extract series data from chart."""
+    series_data = []
+    for idx, series in enumerate(chart.series):
+        series_name = str(series.name) if series.name else f"Series {idx + 1}"
+        series_values = []
+        try:
+            if series.values:
+                series_values = [float(v) if v is not None else 0 for v in series.values]
+        except Exception:
+            pass
+        series_data.append({"name": series_name, "data": series_values})
+    return series_data
+
+
+HORIZONTAL_BAR_TYPES = {
+    XL_CHART_TYPE.BAR_CLUSTERED,
+    XL_CHART_TYPE.BAR_STACKED,
+    XL_CHART_TYPE.BAR_STACKED_100,
+}
+
+
 def _extract_chart(shape, slide_idx: int, shape_idx: int) -> dict | None:
     """Extract chart data from a shape containing a chart."""
     if not shape.has_chart:
@@ -68,70 +109,22 @@ def _extract_chart(shape, slide_idx: int, shape_idx: int) -> dict | None:
     try:
         chart = shape.chart
         chart_type_enum = chart.chart_type
-        echarts_type = _map_chart_type(chart_type_enum)
 
-        # Extract chart title
-        title = ""
-        if chart.has_title:
-            try:
-                title = chart.chart_title.text_frame.text
-            except Exception:
-                pass
-
-        # Extract categories (x-axis labels)
-        categories = []
-        try:
-            if chart.plots:
-                plot_categories = chart.plots[0].categories
-                if plot_categories:
-                    categories = [str(cat) for cat in plot_categories]
-        except Exception as e:
-            print(f"Warning: Could not extract categories: {e}")
-
-        # Extract series data
-        series_data = []
-        for series in chart.series:
-            # Ensure series name is a plain string
-            series_name = str(series.name) if series.name else f"Series {len(series_data) + 1}"
-            series_values = []
-            try:
-                if series.values:
-                    # Convert values to plain Python floats/ints
-                    series_values = [float(v) if v is not None else 0 for v in series.values]
-            except Exception:
-                pass
-
-            series_data.append({
-                "name": series_name,
-                "data": series_values,
-            })
-
-        # Skip empty charts
+        series_data = _extract_chart_series(chart)
         if not series_data or all(not s["data"] for s in series_data):
             return None
 
-        # Determine chart properties
-        is_stacked = "STACKED" in chart_type_enum.name
-        is_horizontal = chart_type_enum in {
-            XL_CHART_TYPE.BAR_CLUSTERED,
-            XL_CHART_TYPE.BAR_STACKED,
-            XL_CHART_TYPE.BAR_STACKED_100,
-        }
-        is_area = "AREA" in chart_type_enum.name
-
-        chart_data = {
+        return {
             "type": "chart",
-            "chart_type": echarts_type,
-            "title": title,
-            "categories": categories,
+            "chart_type": _map_chart_type(chart_type_enum),
+            "title": _extract_chart_title(chart),
+            "categories": _extract_chart_categories(chart),
             "series": series_data,
-            "is_stacked": is_stacked,
-            "is_horizontal": is_horizontal,
-            "is_area": is_area,
+            "is_stacked": "STACKED" in chart_type_enum.name,
+            "is_horizontal": chart_type_enum in HORIZONTAL_BAR_TYPES,
+            "is_area": "AREA" in chart_type_enum.name,
             "chart_id": f"chart_{slide_idx}_{shape_idx}",
         }
-
-        return chart_data
 
     except Exception as e:
         print(f"Warning: Failed to extract chart from slide {slide_idx}, shape {shape_idx}: {e}")
@@ -176,82 +169,82 @@ def _get_image_dimensions(filepath: Path) -> tuple[int, int, float]:
     return width, height, aspect_ratio
 
 
+WEB_IMAGE_FORMATS = ("png", "jpg", "jpeg", "gif", "webp")
+VECTOR_IMAGE_FORMATS = ("wmf", "emf", "wmz", "emz")
+
+
+def _make_media_result(path: str, width: int = 0, height: int = 0) -> dict:
+    """Create a standardized media result dictionary."""
+    aspect_ratio = width / height if height > 0 else 1.0
+    return {"path": path, "width": width, "height": height, "aspect_ratio": aspect_ratio}
+
+
+def _process_web_image(image_bytes: bytes, output_path: Path) -> dict | None:
+    """Process web-compatible image formats using Wand."""
+    try:
+        from wand.image import Image as WandImage
+        from wand.color import Color
+
+        with WandImage(blob=image_bytes) as img:
+            img.trim(color=Color('white'), fuzz=0)
+            img.trim(fuzz=0)
+            img.format = 'png'
+            img.save(filename=str(output_path))
+            return _make_media_result(f"media/{output_path.name}", img.width, img.height)
+    except Exception:
+        return None
+
+
+def _process_vector_image(
+    image_bytes: bytes, ext: str, slide_idx: int, shape_idx: int, media_dir: Path
+) -> dict:
+    """Process vector image formats (WMF/EMF) using LibreOffice."""
+    temp_filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
+    temp_filepath = media_dir / temp_filename
+    png_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
+
+    with open(temp_filepath, "wb") as f:
+        f.write(image_bytes)
+
+    converted = _convert_with_libreoffice(temp_filepath, media_dir)
+    if converted and converted.exists():
+        temp_filepath.unlink(missing_ok=True)
+        width, height, aspect_ratio = _get_image_dimensions(converted)
+        return _make_media_result(f"media/{png_filename}", width, height)
+
+    print(f"Warning: LibreOffice conversion failed for slide {slide_idx}, shape {shape_idx}")
+    return _make_media_result(f"media/{temp_filename}")
+
+
 def _extract_media(
     shape, slide_idx: int, shape_idx: int, media_dir: Path
 ) -> dict | None:
+    """Extract and process media from a shape."""
     if not hasattr(shape, "image"):
         return None
 
     try:
         image_bytes = shape.image.blob
         ext = shape.image.ext.lower()
+        png_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
+        png_filepath = media_dir / png_filename
 
-        processed_filename = f"slide_{slide_idx}_shape_{shape_idx}.png"
-        processed_filepath = media_dir / processed_filename
+        # Try Wand for web-compatible formats
+        if ext in WEB_IMAGE_FORMATS:
+            result = _process_web_image(image_bytes, png_filepath)
+            if result:
+                return result
+            print(f"Warning: Wand processing failed for slide {slide_idx}, shape {shape_idx}")
 
-        # Try wand first for web-compatible formats
-        if ext in ("png", "jpg", "jpeg", "gif", "webp"):
-            try:
-                from wand.image import Image as WandImage
-                from wand.color import Color
-
-                with WandImage(blob=image_bytes) as img:
-                    img.trim(color=Color('white'), fuzz=0)
-                    img.trim(fuzz=0)
-                    img.format = 'png'
-                    img.save(filename=str(processed_filepath))
-
-                    return {
-                        "path": f"media/{processed_filename}",
-                        "width": img.width,
-                        "height": img.height,
-                        "aspect_ratio": img.width / img.height if img.height > 0 else 1.0
-                    }
-            except Exception as e:
-                print(f"Warning: Wand processing failed for slide {slide_idx}, shape {shape_idx}: {e}")
-
-        # For WMF/EMF or if wand failed, try LibreOffice
-        if ext in ("wmf", "emf", "wmz", "emz") or not processed_filepath.exists():
-            # Save original first
-            temp_filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
-            temp_filepath = media_dir / temp_filename
-            with open(temp_filepath, "wb") as f:
-                f.write(image_bytes)
-
-            # Try LibreOffice conversion
-            converted = _convert_with_libreoffice(temp_filepath, media_dir)
-            if converted and converted.exists():
-                # Remove original WMF/EMF
-                temp_filepath.unlink(missing_ok=True)
-                width, height, aspect_ratio = _get_image_dimensions(converted)
-                return {
-                    "path": f"media/{processed_filename}",
-                    "width": width,
-                    "height": height,
-                    "aspect_ratio": aspect_ratio
-                }
-            else:
-                # Keep original if conversion failed
-                print(f"Warning: LibreOffice conversion failed for slide {slide_idx}, shape {shape_idx}")
-                return {
-                    "path": f"media/{temp_filename}",
-                    "width": 0,
-                    "height": 0,
-                    "aspect_ratio": 1.0
-                }
+        # Try LibreOffice for vector formats or if Wand failed
+        if ext in VECTOR_IMAGE_FORMATS or not png_filepath.exists():
+            return _process_vector_image(image_bytes, ext, slide_idx, shape_idx, media_dir)
 
         # Fallback: save original format
         filename = f"slide_{slide_idx}_shape_{shape_idx}.{ext}"
-        filepath = media_dir / filename
-        with open(filepath, "wb") as f:
+        with open(media_dir / filename, "wb") as f:
             f.write(image_bytes)
-
-        return {
-            "path": f"media/{filename}",
-            "width": 0,
-            "height": 0,
-            "aspect_ratio": 1.0
-        }
+        return _make_media_result(f"media/{filename}")
 
     except Exception as e:
         print(f"Warning: Failed to extract media from slide {slide_idx}, shape {shape_idx}: {e}")

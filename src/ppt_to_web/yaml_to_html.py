@@ -32,10 +32,8 @@ def yaml_to_html(
 
     html_content = template.render(data=data)
 
-    if output_filename:
-        html_output_path = html_dir / output_filename
-    else:
-        html_output_path = html_dir / f"{data['title']}.html"
+    filename = output_filename or f"{data['title']}.html"
+    html_output_path = html_dir / filename
 
     with open(html_output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
