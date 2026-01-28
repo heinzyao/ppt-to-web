@@ -2,6 +2,8 @@
 
 將 PowerPoint 簡報轉換為專業雜誌風格網頁。
 
+[![Changelog](https://img.shields.io/badge/changelog-view-blue)](CHANGELOG.md)
+
 ## 系統需求
 
 - Python 3.14+
@@ -95,6 +97,10 @@ ppt-to-web/
 - `pyyaml` - YAML 序列化
 - `click` - CLI 框架
 - `wand` - 圖片處理
+
+## 協作說明
+
+本專案由多個 AI 代理協作開發，詳見 [AGENTS.md](AGENTS.md)。
 
 ## 授權
 
