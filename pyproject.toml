@@ -1,6 +1,6 @@
 [project]
 name = "ppt-to-web"
-version = "0.1.0"
+version = "0.1.1"
 description = "Convert PowerPoint presentations to professional web pages with McKinsey/Bloomberg/Economist style"
 readme = "README.md"
 authors = [
