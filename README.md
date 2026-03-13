@@ -85,6 +85,10 @@ ppt-to-web/
 │   └── templates/          # Jinja2 模板
 │       ├── cover_story.html
 │       └── index.html
+├── tests/                 # 測試套件
+│   ├── test_ppt_to_yaml.py
+│   ├── test_yaml_to_html.py
+│   └── test_cli.py
 ├── hero_images/            # 封面背景圖片
 ├── output/                 # 輸出目錄
 └── pyproject.toml
@@ -97,6 +101,19 @@ ppt-to-web/
 - `pyyaml` - YAML 序列化
 - `click` - CLI 框架
 - `wand` - 圖片處理
+- `pytest` - 測試框架（開發依賴）
+
+## 測試
+
+本專案包含 63 個自動化測試，涵蓋文字提取、圖表解析、HTML 渲染及 CLI 介面。
+
+```bash
+# 執行所有測試
+uv run pytest
+
+# 顯示詳細輸出
+uv run pytest -v
+```
 
 ## 協作說明
 
